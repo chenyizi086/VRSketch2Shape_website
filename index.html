@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Clean project page without images/videos.">
+  <meta name="keywords" content="Project Page">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order Matters: 3D Shape Generation from Sequential VR Sketches</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script>
+    (function loadSketchScripts() {
+      var cacheBust = Date.now().toString();
+      var scripts = ['sketch-data.js', 'index.js'];
+      scripts.forEach(function(file) {
+        var tag = document.createElement('script');
+        tag.src = './static/js/' + file + '?v=' + cacheBust;
+        document.head.appendChild(tag);
+      });
+    })();
+  </script>
+
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #6b7280;
+      --accent: #0ea5e9;
+      --accent-strong: #0284c7;
+      --surface: #ffffff;
+      --card-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+    }
+
+    body {
+      background: #ffffff;
+      color: var(--ink);
+      letter-spacing: 0.01em;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      font-size: 0.9rem;
+      color: #dbeafe;
+      letter-spacing: 0.02em;
+    }
+    .pill .dot {
+      width: 8px;
+      height: 8px;
+      background: #7dd3fc;
+      border-radius: 50%;
+      box-shadow: 0 0 0 6px rgba(125, 211, 252, 0.15);
+    }
+
+    .section-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--ink);
+    }
+    .section-title .accent-line {
+      display: none;
+    }
+
+    .soft-card {
+      background: var(--surface);
+      border-radius: 18px;
+      border: 1px solid #e5e7eb;
+      box-shadow: var(--card-shadow);
+      padding: 2rem;
+    }
+    .soft-card p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1.02rem;
+    }
+
+    .action-buttons .button {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+    .action-buttons .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+      border-color: var(--accent);
+      color: var(--accent-strong);
+    }
+    .action-buttons .icon {
+      color: var(--accent-strong);
+    }
+
+    .meta-row {
+      gap: 1rem;
+      color: #cbd5e1;
+    }
+    .meta-row .institution {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #000000;
+      padding: 0.6rem 0.9rem;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    .pipeline-figure {
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 18px 0;
+    }
+    .pipeline-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+      border: 1px solid #e5e7eb;
+    }
+
+    .related-links p {
+      margin-bottom: 0.5rem;
+    }
+    .related-links a {
+      color: var(--accent-strong);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+    }
+    .related-links a:hover {
+      border-bottom-color: var(--accent-strong);
+    }
+
+    .bibtex-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 16px 35px rgba(15, 23, 42, 0.25);
+      border: 1px solid #1f2937;
+    }
+    .bibtex-block code {
+      background: transparent;
+      color: #e2e8f0;
+      padding: 0;
+    }
+
+    footer.footer {
+      background: transparent;
+      border-top: 1px solid #e5e7eb;
+      color: var(--muted);
+    }
+
+    /* Interactive sketch viewer */
+    .sketch-card {
+      position: relative;
+      padding: 1.5rem;
+    }
+    .sketch-canvas {
+      width: 100%;
+      height: 420px;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: none;
+    }
+    .sketch-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .sketch-hint {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .sketch-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .sketch-controls .slider {
+      width: 180px;
+    }
+    .sketch-legend {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 0.75rem;
+    }
+    .obj-viewer, 
+    #sketch-canvas {
+      width: 100%;
+      height: 420px;         /* same height */
+      border-radius: 14px;
+      background: white;
+      border: 1px solid #e5e7eb;
+    }
+    .viewer-grid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Title Section -->
+<section class="hero hero-banner">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-10 has-text-centered">
+          <div class="hero-panel">
+            <div class="pill mb-4">
+              <!-- <span class="dot"></span> -->
+              <!-- <span>Order Matters: 3D Shape Generation from Sequential VR Sketches</span> -->
+            </div>
+
+            <h1 class="title is-1 publication-title">Order Matters: 3D Shape Generation from Sequential VR Sketches</h1>
+            <!-- <p class="subtitle is-5" style="color: #cbd5e1; max-width: 880px; margin: 0 auto;">
+              VRSketch2Shape leverages the temporal rhythm of VR strokes with an order-aware encoder and diffusion-based generator to reconstruct faithful 3D shapes.
+            </p> -->
+
+            <div class="is-size-5 publication-authors mt-5">
+              <span class="author-block"><a href="#">Yizi Chen*</a><sup>1</sup>,</span>
+              <span class="author-block"><a href="#">Sidi Wu*</a><sup>1</sup>,</span>
+              <span class="author-block"><a href="#">Tianyi Xiao</a><sup>1</sup>,</span>
+              <span class="author-block"><a href="#">Nina Wiedemann</a><sup>1,3</sup>,</span>
+              <span class="author-block"><a href="#">Loic Landrieu</a><sup>2</sup></span>
+            </div>
+
+            <div class="meta-row is-flex is-justify-content-center is-flex-wrap-wrap mt-3">
+              <span class="institution"><sup>1</sup>ETH Zurich</span>
+              <span class="institution"><sup>2</sup>Univ Gustave Eiffel, CNRS, Ecole des Ponts, LIGM</span>
+              <span class="institution"><sup>3</sup>Intel</span>
+            </div>
+            <!-- <div class="is-size-6 has-text-centered mt-1" style="color: #cbd5e1;">* Equal contribution</div> -->
+             <div class="is-size-6 has-text-centered mt-1">* Equal contribution</div>
+
+            <div class="column has-text-centered mt-5">
+              <div class="publication-links action-buttons">
+
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded">
+                    <span class="icon"><i class="ai ai-arxiv"></i></span><span>arXiv</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded">
+                    <span class="icon"><i class="fab fa-github"></i></span><span>Code</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded">
+                    <span class="icon"><i class="far fa-images"></i></span><span>Data</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 section-title"><span class="accent-line"></span> Abstract</h2>
+        <div class="soft-card has-text-left mt-4">
+          <div class="content">
+            <p>
+              VR sketching lets users explore and iterate on ideas directly in 3D, offering a faster and more intuitive alternative to conventional CAD tools.
+              However, existing sketch-to-shape models ignore the temporal ordering of strokes, discarding crucial cues about structure and design intent.
+              We introduce VRSketch2Shape, the first framework and multi-category dataset for generating 3D shapes from sequential VR sketches.
+              Our contributions are threefold: (i) an automated pipeline that generates sequential VR sketches from arbitrary shapes,
+              (ii) a dataset of over 20k synthetic and 900 hand-drawn sketch-shape pairs across four categories, and
+              (iii) an order-aware sketch encoder coupled with a diffusion-based 3D generator.
+              Our approach yields higher geometric fidelity than prior work, generalizes effectively from synthetic to real sketches with minimal supervision, and performs well even on partial sketches. All data and models will be released open-source.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Overview with image -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 section-title"><span class="accent-line"></span> Overview</h2>
+    <div class="content">
+
+      <figure class="image pipeline-figure">
+        <img src="./static/images/pipeline.png" alt="Overview Image">
+      </figure>
+
+      <p class="has-text-centered" style="margin-top: 10px;">
+        <em>An input VR sketch is tokenized into a sequence of points organized along ordered strokes.
+        Each 3D point is encoded using 3D Fourier features and an MLP, while stroke and point indices are encoded with 1D Fourier features followed by a linear projection. The resulting embeddings are summed and passed through a lightweight BERT encoder.
+        The encoded token sequence is then used to condition SDFusion, a diffusion-based 3D shape generation model.</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Overview with image -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 section-title"><span class="accent-line"></span> Our results</h2>
+    <div class="content">
+      <figure class="image pipeline-figure">
+        <img src="./static/images/figure4.png" alt="Overview Image">
+      </figure>
+      <p class="has-text-centered" style="margin-top: 10px;">
+        <em>Figure.Our approach generates shapes that are detailed, structurally accurate, and topologically faithful to the target geometry.</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Overview with image -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 section-title"><span class="accent-line"></span> Unseen class</h2>
+    <div class="content">
+      <figure class="image pipeline-figure">
+        <img src="./static/images/unseen.png" alt="Overview Image">
+      </figure>
+      <p class="has-text-centered" style="margin-top: 10px;">
+        <em>Results on sketches depicting object categories not present in the training data, including bottles, lamps, and cars from ShapeNet, and monitors, toilets, and beds from ModelNet. Despite the domain shift, our model generally produces plausible shapes aligned with the sketch intent.</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Overview with image -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 section-title"><span class="accent-line"></span> Free hand sketches</h2>
+    <div class="content">
+
+      <!-- scale wrapper -->
+      <div style="transform: scale(0.9); transform-origin: center; margin: 0 auto; width: fit-content;">
+        <figure class="image pipeline-figure" style="margin: 0 auto;">
+          <img src="./static/images/free_hand.png" alt="Overview Image">
+        </figure>
+      </div>
+
+      <p class="has-text-centered" style="margin-top: 10px;">
+        <em>Our model generalizes well to free-hand sketches drawn without any reference shape for airplanes, chairs/sofas, tables, and cabinets, producing detailed and plausible reconstructions that reflect the user's intent.</em>
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Sketch -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 section-title"><span class="accent-line"></span> Interactive Sketch</h2>
+    <div class="soft-card sketch-card mt-4">
+      <div class="columns is-variable is-6">
+        <div class="column is-full">
+          <div class="sketch-top">
+            <p class="sketch-hint">Drag to rotate, scroll to zoom, double-click to reset view.</p>
+            <div class="sketch-controls">
+              <span class="is-size-7 has-text-weight-semibold">Zoom</span>
+              <input id="sketch-zoom" class="slider is-small" step="0.01" min="0.6" max="2.5" value="0.6" type="range">
+              <button id="sketch-reset" class="button is-small is-light">Reset</button>
+              <button id="sketch-rotate-left" class="button is-small is-light">Y⟲</button>
+              <button id="sketch-rotate-right" class="button is-small is-light">Y⟳</button>
+              <button id="sketch-rotate-x-left" class="button is-small is-light">X⟲</button>
+              <button id="sketch-rotate-x-right" class="button is-small is-light">X⟳</button>
+              <button id="sketch-rotate-z-left" class="button is-small is-light">Z⟲</button>
+              <button id="sketch-rotate-z-right" class="button is-small is-light">Z⟳</button>
+              <button id="sketch-play" class="button is-small is-primary">Play</button>
+            </div>
+          </div>
+
+          <canvas id="sketch-canvas" class="sketch-canvas" aria-label="Interactive VR sketch canvas"></canvas>
+
+          <div class="sketch-legend">
+            <div class="colorbar">
+              <span>Early</span>
+              <span class="bar">
+                <span class="bar-fill"></span>
+              </span>
+              <span>Late</span>
+            </div>
+            <p id="sketch-status">Loading sketch data…</p>
+          </div>
+        </div>
+      </div> 
+    </div>
+  </div>
+</section>
+
+<!-- BibTeX -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title section-title"><span class="accent-line"></span> BibTeX</h2>
+    <pre class="bibtex-block"><code>@article{Order Matters: 3D Shape Generation from Sequential VR Sketches,
+  author    = {Yizi Chen, Sidi Wu, Tianyi Xiao, Nina Wiedemann, Loic Landrieu},
+  title     = {Order Matters: 3D Shape Generation from Sequential VR Sketches},
+  journal   = {Arxiv},
+  year      = {2025},
+}</code></pre>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            Website template based on 
+            <a href="https://nerfies.github.io/" target="_blank" rel="noopener noreferrer">
+              Nerfies
+            </a> 
+            and licensed under CC-BY-SA-4.0.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
